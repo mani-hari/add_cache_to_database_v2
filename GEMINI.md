@@ -353,7 +353,7 @@ For Valkey:
 gcloud services enable memorystore.googleapis.com --quiet
 ```
 
-### Step 6.3: Create Instance
+### Step 6.3: Create Instance (Async)
 
 **Redis with High Availability (STANDARD tier):**
 ```bash
@@ -362,7 +362,8 @@ gcloud redis instances create INSTANCE_NAME \
   --network=projects/PROJECT_ID/global/networks/VPC_NETWORK \
   --tier=STANDARD \
   --size=SIZE_GB \
-  --redis-version=redis_7_2
+  --redis-version=redis_7_2 \
+  --async
 ```
 
 **Redis Basic tier (no HA):**
@@ -372,7 +373,8 @@ gcloud redis instances create INSTANCE_NAME \
   --network=projects/PROJECT_ID/global/networks/VPC_NETWORK \
   --tier=BASIC \
   --size=SIZE_GB \
-  --redis-version=redis_7_2
+  --redis-version=redis_7_2 \
+  --async
 ```
 
 **Valkey:**
@@ -383,59 +385,46 @@ gcloud memorystore instances create INSTANCE_NAME \
   --node-type=NODE_TYPE \
   --shard-count=1 \
   --replica-count=REPLICA_COUNT \
-  --engine-version=valkey-8-0
+  --engine-version=valkey-8-0 \
+  --async
 ```
 
-### Step 6.4: Show Progress
+### Step 6.4: Confirm Initiation
 
 Display:
 ```
-Creating cache instance... (typically 5-10 minutes)
-```
-
-Poll until ready:
-```bash
-gcloud redis instances describe INSTANCE_NAME --region=REGION --format="value(state)"
-```
-
-For Valkey:
-```bash
-gcloud memorystore instances describe INSTANCE_NAME --region=REGION --format="value(state)"
+Creation started in the background! 🚀
 ```
 
 ---
 
-## PHASE 7: Connection Info
+## PHASE 7: Next Steps & Connection
 
-### Step 7.1: Get Connection Details
+### Step 7.1: Display Provisioning Card
 
-For Redis:
-```bash
-gcloud redis instances describe INSTANCE_NAME --region=REGION --format="value(host,port)"
-```
-
-For Valkey:
-```bash
-gcloud memorystore instances describe INSTANCE_NAME --region=REGION --format="json(discoveryEndpoints)"
-```
-
-### Step 7.2: Display Success Card
+Display this status card:
 
 ```
 +---------------------------------------------------------------+
-|                    ✅ CACHE IS READY                          |
+|               ⏳ PROVISIONING STARTED                         |
 +---------------------------------------------------------------+
 |                                                               |
-|   Instance   |  sql-cache-abc123                              |
-|   Type       |  Redis 7.2 (High Availability)                 |
-|   Host       |  10.x.x.x                                      |
-|   Port       |  6379                                          |
+|   Your cache instance is being created.                       |
+|   This typically takes 10-15 minutes.                         |
+|                                                               |
+|   Name     |  [INSTANCE_NAME]                                 |
+|   Details  |  gcloud redis instances describe [INSTANCE_NAME] |
 |                                                               |
 +---------------------------------------------------------------+
-|   📈 SCALING UP LATER                                         |
+|   � WHAT TO DO NEXT                                          |
 |                                                               |
-|   gcloud redis instances update sql-cache-abc123 \            |
-|     --region=REGION --size=NEW_SIZE                           |
+|   1. Check status occasionally:                               |
+|      gcloud redis instances list --region=[REGION]            |
+|                                                               |
+|   2. Once status is 'READY', get connection info:             |
+|      gcloud redis instances describe [INSTANCE_NAME] \        |
+|        --region=[REGION] --format="value(host,port)"          |
+|                                                               |
 +---------------------------------------------------------------+
 ```
 
