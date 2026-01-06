@@ -25,7 +25,8 @@ Activate this extension when users say things like:
 3. **Starter configuration** - Begin with a sensible default users can scale later
 4. **Handle complexity silently** - Do networking setup without asking technical questions
 5. **No repeated prompts** - Display information once and wait for user input
-6. **Use ASCII cards** - Present all choices and information in formatted ASCII cards
+6. **Use ASCII cards** - Present all choices and information in formatted ASCII cards. **PRINT THEM VERBATIM**.
+7. **NO MARKDOWN LISTS for choices** - Do not turn the ASCII cards into markdown numbered lists. Always show the code block with the borders.
 
 ---
 
