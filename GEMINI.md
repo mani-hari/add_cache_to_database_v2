@@ -18,10 +18,12 @@ Activate this extension when users say things like:
 2. **Explain your choices** - Always tell users WHY you're recommending something
 3. **Starter configuration** - Begin with a sensible default users can scale later
 4. **Handle complexity silently** - Do networking setup without asking technical questions
+5. **No repeated prompts** - Display information once and wait for user input
+6. **Use ASCII cards** - Present all choices and information in formatted ASCII cards
 
 ---
 
-## PHASE 1: Select Cloud SQL Instance
+## PHASE 1: Getting Started
 
 ### Step 1.1: Verify Project
 ```bash
@@ -29,240 +31,321 @@ gcloud config get-value project
 ```
 If no project, ask user to set one first.
 
-### Step 1.2: List Instances
+### Step 1.2: Ask How to Proceed
+
+Display this card and wait for user input:
+
+```
+╔═══════════════════════════════════════════════════════════════╗
+║                    🚀 ADD CACHE TO YOUR DATABASE               ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                                ║
+║   How would you like to set up your cache?                     ║
+║                                                                ║
+║   [1] 🔗 Connect to existing Cloud SQL instance                ║
+║       I'll match the region and network automatically          ║
+║                                                                ║
+║   [2] 📦 Create standalone cache                               ║
+║       I'll use the default VPC network                         ║
+║                                                                ║
+╚═══════════════════════════════════════════════════════════════╝
+```
+
+**Wait for user to enter 1 or 2.**
+
+---
+
+## PHASE 2A: Cloud SQL Instance Selection (if user chose option 1)
+
+### Step 2A.1: List Instances
+
+Run this command silently:
 ```bash
 gcloud sql instances list --format="table(name, databaseVersion, region, state)"
 ```
 
-**Prompt:**
+Then display results in an ASCII card:
+
 ```
-Which Cloud SQL instance would you like to add caching to?
-(Enter the name or number)
+╔═══════════════════════════════════════════════════════════════╗
+║                    📊 YOUR CLOUD SQL INSTANCES                 ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                                ║
+║   #   Name                 Database        Region    Status    ║
+║   ─────────────────────────────────────────────────────────────║
+║   1   my-postgres-db       POSTGRES_15     us-central1   ✓     ║
+║   2   prod-mysql           MYSQL_8_0       us-east1      ✓     ║
+║   3   dev-instance         POSTGRES_14     europe-west1  ✓     ║
+║                                                                ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Enter the number of the instance you want to add caching to:
 ```
 
-### Step 1.3: Get Instance Details (Silent)
+**Wait for user to enter a number.**
+
+### Step 2A.2: Get Instance Details (Silent)
+
+Run silently to extract region and VPC:
 ```bash
-gcloud sql instances describe INSTANCE_NAME --format="json(name, region, settings.tier, settings.dataDiskSizeGb, settings.ipConfiguration.privateNetwork)"
+gcloud sql instances describe INSTANCE_NAME --format="json(name, region, settings.ipConfiguration.privateNetwork)"
 ```
 
 Extract and store:
 - `REGION` - Where the instance lives
-- `VPC_NETWORK` - Private network (may be null)
-- `DISK_SIZE_GB` - For reference only
+- `VPC_NETWORK` - Private network (may be null, if so use "default")
 
 ---
 
-## PHASE 2: Choose Cache Type
+## PHASE 2B: Standalone Cache Setup (if user chose option 2)
 
-**Display:**
+Set these defaults:
+- `REGION` = Ask user to select from available regions
+- `VPC_NETWORK` = "default"
+
+Display:
+```
+╔═══════════════════════════════════════════════════════════════╗
+║                    🌍 SELECT REGION                            ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                                ║
+║   Popular regions:                                             ║
+║                                                                ║
+║   [1] us-central1      (Iowa, USA)                             ║
+║   [2] us-east1         (South Carolina, USA)                   ║
+║   [3] europe-west1     (Belgium)                               ║
+║   [4] asia-east1       (Taiwan)                                ║
+║                                                                ║
+║   Or type a region name directly (e.g., asia-southeast1)       ║
+║                                                                ║
+╚═══════════════════════════════════════════════════════════════╝
+```
+
+**Wait for user input.**
+
+---
+
+## PHASE 3: Choose Cache Type
+
+Display this card and wait for input:
+
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    CHOOSE YOUR CACHE TYPE                      ║
 ╠═══════════════════════════════════════════════════════════════╣
 ║                                                                ║
 ║   [1] 🔴 REDIS                                                 ║
-║       The industry standard for caching.                       ║
-║       Mature ecosystem, extensive documentation.               ║
+║       The industry standard for caching                        ║
+║       Mature ecosystem, extensive documentation                ║
 ║                                                                ║
 ║   [2] 🟣 VALKEY                                                ║
-║       Open-source Redis alternative.                           ║
-║       Great choice if you prefer open-source licensing.        ║
+║       Open-source Redis alternative                            ║
+║       Great choice for open-source licensing                   ║
 ║                                                                ║
 ╚═══════════════════════════════════════════════════════════════╝
-
-Which cache type would you like? (1 or 2)
 ```
+
+**Wait for user to enter 1 or 2.**
 
 ---
 
-## PHASE 3: Present Starter Configuration
+## PHASE 4: Present Starter Configuration
 
-> **Important:** We use a fixed "starter" configuration. Cache sizing depends on access patterns (which we can't detect), not database size. Users can scale up later.
+### For Redis (if user chose 1):
 
-### For Redis:
+Display this card:
 
-**Display:**
 ```
 ╔═══════════════════════════════════════════════════════════════╗
-║                 🚀 STARTER CONFIGURATION                       ║
+║                 🚀 REDIS STARTER CONFIGURATION                 ║
 ╠═══════════════════════════════════════════════════════════════╣
 ║                                                                ║
-║   Cache Type      │  Redis 7.2                                 ║
-║   Memory          │  1 GB                                      ║
-║   High Availability│  Yes (automatic failover)                 ║
-║   Security        │  Auth + TLS enabled                        ║
-║   Region          │  [REGION]                                  ║
+║   Cache Type        │  Redis 7.2                               ║
+║   Memory            │  1 GB                                    ║
+║   High Availability │  Yes (automatic failover)                ║
+║   Security          │  Auth + TLS enabled                      ║
+║   Region            │  [REGION]                                ║
+║   Network           │  [VPC_NETWORK]                           ║
 ║                                                                ║
-║   Estimated Cost  │  ~$35/month                                ║
+║   Estimated Cost    │  ~$35/month                              ║
 ║                                                                ║
 ╠═══════════════════════════════════════════════════════════════╣
-║                                                                ║
 ║   💡 WHY THIS CONFIGURATION?                                   ║
 ║                                                                ║
-║   • 1 GB is enough to cache thousands of frequently-accessed  ║
-║     rows, session data, or API responses.                      ║
+║   • 1 GB is enough for sessions and frequently-accessed data   ║
+║   • High Availability keeps cache online during maintenance    ║
+║   • You can scale up memory anytime as needs grow              ║
+╠═══════════════════════════════════════════════════════════════╣
 ║                                                                ║
-║   • High Availability ensures your cache stays online even     ║
-║     during maintenance or hardware issues.                     ║
-║                                                                ║
-║   • You can increase memory anytime as you learn what your     ║
-║     application actually needs to cache.                       ║
+║   [1] ✅ Create with this configuration                        ║
+║   [2] 📏 Change memory size                                    ║
+║   [3] 💰 Use Basic tier (no HA, cheaper, good for dev/test)    ║
 ║                                                                ║
 ╚═══════════════════════════════════════════════════════════════╝
-
-How would you like to proceed?
-
-  [1] ✅ Create with this configuration
-  [2] 📏 Change memory size (1GB, 5GB, 10GB, 16GB)
-  [3] 💰 Use Basic tier (no HA, ~50% cheaper, good for dev/test)
 ```
 
-### For Valkey:
+**Wait for user to enter 1, 2, or 3.**
 
-**Display:**
+### For Valkey (if user chose 2):
+
+Display this card:
+
 ```
 ╔═══════════════════════════════════════════════════════════════╗
-║                 🚀 STARTER CONFIGURATION                       ║
+║                 🚀 VALKEY STARTER CONFIGURATION                ║
 ╠═══════════════════════════════════════════════════════════════╣
 ║                                                                ║
-║   Cache Type      │  Valkey 8.0                                ║
-║   Node Type       │  shared-core-nano                          ║
-║   Memory          │  ~1.5 GB usable                            ║
-║   High Availability│  Yes (1 replica)                          ║
-║   Security        │  Auth + TLS enabled                        ║
-║   Region          │  [REGION]                                  ║
+║   Cache Type        │  Valkey 8.0                              ║
+║   Node Type         │  shared-core-nano                        ║
+║   Memory            │  ~1.5 GB usable                          ║
+║   High Availability │  Yes (1 replica)                         ║
+║   Security          │  Auth + TLS enabled                      ║
+║   Region            │  [REGION]                                ║
+║   Network           │  [VPC_NETWORK]                           ║
 ║                                                                ║
 ╠═══════════════════════════════════════════════════════════════╣
-║                                                                ║
 ║   💡 WHY THIS CONFIGURATION?                                   ║
 ║                                                                ║
-║   • The smallest Valkey node gives you a cost-effective        ║
-║     starting point with room to grow.                          ║
+║   • Smallest node for cost-effective starting point            ║
+║   • One replica provides automatic failover                    ║
+║   • Upgrade to larger nodes anytime as needs grow              ║
+╠═══════════════════════════════════════════════════════════════╣
 ║                                                                ║
-║   • One replica provides high availability—if the primary      ║
-║     fails, the replica takes over automatically.               ║
-║                                                                ║
-║   • Upgrade to larger node types anytime as your needs grow.   ║
+║   [1] ✅ Create with this configuration                        ║
+║   [2] 📏 Choose a larger node type                             ║
+║   [3] 🔬 Remove replica (cheaper, good for dev/test)           ║
 ║                                                                ║
 ╚═══════════════════════════════════════════════════════════════╝
-
-How would you like to proceed?
-
-  [1] ✅ Create with this configuration
-  [2] 📏 Choose a larger node type
-  [3] 🔬 Remove replica (cheaper, good for dev/test)
 ```
 
-### If User Chooses to Customize:
-
-**For memory size (Redis):**
-```
-Available memory sizes:
-  • 1 GB  - Sessions, frequently-accessed rows (~$35/mo)
-  • 5 GB  - Medium application caching (~$175/mo)  
-  • 10 GB - Large datasets, multiple cache types (~$350/mo)
-  • 16 GB - Heavy caching workloads (~$560/mo)
-
-Which size? (Enter number in GB)
-```
-
-**For node type (Valkey):**
-```
-Available node types:
-  • shared-core-nano   - ~1.5 GB, good starting point
-  • highmem-medium     - ~12 GB, medium workloads
-  • highmem-xlarge     - ~58 GB, large scale caching
-
-Which node type?
-```
+**Wait for user to enter 1, 2, or 3.**
 
 ---
 
-## PHASE 4: Network Setup (Automated)
+## PHASE 4B: Customization (if user didn't choose option 1)
 
-Tell the user:
+### For Redis Memory Size (if user chose 2):
+
 ```
-Setting up network connectivity...
-(I'll configure VPC peering so your database and cache can communicate)
+╔═══════════════════════════════════════════════════════════════╗
+║                    📏 SELECT MEMORY SIZE                       ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                                ║
+║   [1]  1 GB  - Sessions, hot data           (~$35/mo)          ║
+║   [2]  5 GB  - Medium application caching   (~$175/mo)         ║
+║   [3] 10 GB  - Large datasets               (~$350/mo)         ║
+║   [4] 16 GB  - Heavy caching workloads      (~$560/mo)         ║
+║                                                                ║
+╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### Step 4.1: Determine VPC
+**Wait for user input, then return to configuration confirmation.**
 
-**If VPC_NETWORK exists:** Use it directly.
+### For Valkey Node Type (if user chose 2):
 
-**If VPC_NETWORK is null (public IP only):**
 ```
-Your Cloud SQL uses public IP. I'll set up the cache on the 'default' 
-VPC network. Your application will need VPC access to reach the cache.
-
-Continue? (yes/no)
+╔═══════════════════════════════════════════════════════════════╗
+║                    📏 SELECT NODE TYPE                         ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                                ║
+║   [1] shared-core-nano   ~1.5 GB   (good starting point)       ║
+║   [2] highmem-medium     ~12 GB    (medium workloads)          ║
+║   [3] highmem-xlarge     ~58 GB    (large scale caching)       ║
+║                                                                ║
+╚═══════════════════════════════════════════════════════════════╝
 ```
-Set `VPC_NETWORK=default` if confirmed.
 
-### Step 4.2: Check Private Service Access
+**Wait for user input, then return to configuration confirmation.**
+
+---
+
+## PHASE 5: Network Setup (Automated - No User Interaction)
+
+Inform user briefly:
+```
+Setting up network connectivity... ⏳
+```
+
+### Step 5.1: Check Private Service Access
 ```bash
 gcloud compute addresses list --global --filter="purpose=VPC_PEERING" --format="value(name)"
 ```
 
-**If exists:** Display `✓ Network connectivity ready`
+**If exists:** Continue silently.
 
-**If missing:** Set it up silently:
+**If missing:** Set it up automatically:
 ```bash
-gcloud compute addresses create google-managed-services-VPC_NETWORK \
+gcloud compute addresses create google-managed-services-default \
   --global \
   --purpose=VPC_PEERING \
   --prefix-length=20 \
-  --network=VPC_NETWORK
+  --network=default
 
 gcloud services vpc-peerings connect \
   --service=servicenetworking.googleapis.com \
-  --ranges=google-managed-services-VPC_NETWORK \
-  --network=VPC_NETWORK
+  --ranges=google-managed-services-default \
+  --network=default
 ```
-Display `✓ Network connectivity configured`
+
+Then display: `✓ Network ready`
 
 ---
 
-## PHASE 5: Provision the Cache
+## PHASE 6: Create the Cache
 
-### Step 5.1: Final Confirmation
+### Step 6.1: Final Confirmation
+
+Display:
 ```
-Ready to create your cache:
-
-  Name:    sql-cache-[RANDOM_6_CHARS]
-  Type:    [Redis 7.2 / Valkey 8.0]
-  Memory:  [SIZE]
-  Region:  [REGION] (same as your database for lowest latency)
-  
-  This will incur charges. Proceed? (yes/no)
+╔═══════════════════════════════════════════════════════════════╗
+║                    ⚡ READY TO CREATE                          ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                                ║
+║   Name     │  sql-cache-[RANDOM_6_CHARS]                       ║
+║   Type     │  [Redis 7.2 / Valkey 8.0]                         ║
+║   Memory   │  [SIZE]                                           ║
+║   Region   │  [REGION]                                         ║
+║   Network  │  [VPC_NETWORK]                                    ║
+║                                                                ║
+║   ⚠️  This will incur charges on your billing account.         ║
+║                                                                ║
+║   Proceed? (y/n)                                               ║
+║                                                                ║
+╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### Step 5.2: Enable APIs
+**Wait for user to enter y or n.**
+
+### Step 6.2: Enable APIs
+
 ```bash
 gcloud services enable redis.googleapis.com secretmanager.googleapis.com --quiet
-# For Valkey:
+```
+
+For Valkey:
+```bash
 gcloud services enable memorystore.googleapis.com secretmanager.googleapis.com --quiet
 ```
 
-### Step 5.3: Create Instance
+### Step 6.3: Create Instance
 
-**Redis (STANDARD_HA):**
+**Redis with High Availability (STANDARD tier):**
 ```bash
 gcloud redis instances create INSTANCE_NAME \
   --region=REGION \
-  --network=projects/PROJECT/global/networks/VPC_NETWORK \
-  --tier=STANDARD_HA \
+  --network=projects/PROJECT_ID/global/networks/VPC_NETWORK \
+  --tier=STANDARD \
   --size=SIZE_GB \
   --redis-version=redis_7_2 \
   --transit-encryption-mode=SERVER_AUTHENTICATION \
   --auth-enabled
 ```
 
-**Redis (BASIC):**
+**Redis Basic tier (no HA):**
 ```bash
 gcloud redis instances create INSTANCE_NAME \
   --region=REGION \
-  --network=projects/PROJECT/global/networks/VPC_NETWORK \
+  --network=projects/PROJECT_ID/global/networks/VPC_NETWORK \
   --tier=BASIC \
   --size=SIZE_GB \
   --redis-version=redis_7_2 \
@@ -274,43 +357,47 @@ gcloud redis instances create INSTANCE_NAME \
 ```bash
 gcloud memorystore instances create INSTANCE_NAME \
   --region=REGION \
-  --psc-auto-connections=network=projects/PROJECT/global/networks/VPC_NETWORK,projectId=PROJECT \
+  --psc-auto-connections=network=projects/PROJECT_ID/global/networks/VPC_NETWORK,projectId=PROJECT_ID \
   --node-type=NODE_TYPE \
   --shard-count=1 \
   --replica-count=REPLICA_COUNT \
-  --engine-version=valkey_8_0
+  --engine-version=valkey-8-0
 ```
 
-### Step 5.4: Show Progress
+### Step 6.4: Show Progress
+
+Display:
 ```
-⏳ Creating cache instance... (this typically takes 5-10 minutes)
+⏳ Creating cache instance... (typically 5-10 minutes)
 ```
 
 Poll until ready:
 ```bash
-# Redis
 gcloud redis instances describe INSTANCE_NAME --region=REGION --format="value(state)"
-# Valkey
+```
+
+For Valkey:
+```bash
 gcloud memorystore instances describe INSTANCE_NAME --region=REGION --format="value(state)"
 ```
 
 ---
 
-## PHASE 6: Secure Credentials
+## PHASE 7: Secure Credentials
 
-### Step 6.1: Get Auth String (Redis only)
+### Step 7.1: Get Auth String (Redis only)
 ```bash
 gcloud redis instances get-auth-string INSTANCE_NAME --region=REGION --format="value(authString)"
 ```
 
-### Step 6.2: Store in Secret Manager
+### Step 7.2: Store in Secret Manager
 ```bash
 echo -n "AUTH_STRING" | gcloud secrets create INSTANCE_NAME-auth --data-file=-
 ```
 
-### Step 6.3: Grant Access
+### Step 7.3: Grant Access
 ```bash
-PROJECT_NUMBER=$(gcloud projects describe PROJECT --format="value(projectNumber)")
+PROJECT_NUMBER=$(gcloud projects describe PROJECT_ID --format="value(projectNumber)")
 gcloud secrets add-iam-policy-binding INSTANCE_NAME-auth \
   --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
   --role="roles/secretmanager.secretAccessor"
@@ -318,19 +405,22 @@ gcloud secrets add-iam-policy-binding INSTANCE_NAME-auth \
 
 ---
 
-## PHASE 7: Success & Connection Info
+## PHASE 8: Success & Connection Info
 
-### Step 7.1: Get Connection Details
+### Step 8.1: Get Connection Details
+
+For Redis:
 ```bash
-# Redis
-gcloud redis instances describe INSTANCE_NAME --region=REGION \
-  --format="table(host, port)"
-# Valkey
-gcloud memorystore instances describe INSTANCE_NAME --region=REGION \
-  --format="json(discoveryEndpoints)"
+gcloud redis instances describe INSTANCE_NAME --region=REGION --format="value(host,port)"
 ```
 
-### Step 7.2: Display Success Card
+For Valkey:
+```bash
+gcloud memorystore instances describe INSTANCE_NAME --region=REGION --format="json(discoveryEndpoints)"
+```
+
+### Step 8.2: Display Success Card
+
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║                     ✅ CACHE IS READY!                         ║
@@ -342,22 +432,19 @@ gcloud memorystore instances describe INSTANCE_NAME --region=REGION \
 ║   Port       │  6379                                           ║
 ║                                                                ║
 ╠═══════════════════════════════════════════════════════════════╣
-║                                                                ║
 ║   🔐 CREDENTIALS                                               ║
+║                                                                ║
 ║   Auth password stored in Secret Manager:                      ║
 ║   → projects/PROJECT/secrets/sql-cache-abc123-auth             ║
-║                                                                ║
 ╠═══════════════════════════════════════════════════════════════╣
-║                                                                ║
 ║   📈 SCALING UP LATER                                          ║
-║   When you need more memory, run:                              ║
+║                                                                ║
 ║   gcloud redis instances update sql-cache-abc123 \             ║
 ║     --region=REGION --size=NEW_SIZE                            ║
-║                                                                ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### Step 7.3: Provide Connection Code
+### Step 8.3: Provide Connection Code
 
 **Python:**
 ```python
@@ -382,7 +469,7 @@ def get_redis_client():
 
 # Example usage
 cache = get_redis_client()
-cache.set("user:123", '{"name": "Alice"}', ex=3600)  # Cache for 1 hour
+cache.set("user:123", '{"name": "Alice"}', ex=3600)
 user = cache.get("user:123")
 ```
 
@@ -405,29 +492,23 @@ async function getRedisClient() {
     tls: {}
   });
 }
-
-// Example usage
-const cache = await getRedisClient();
-await cache.set('user:123', JSON.stringify({name: 'Alice'}), 'EX', 3600);
-const user = await cache.get('user:123');
 ```
 
-### Step 7.4: Network Access Note
+### Step 8.4: Network Access Note (only if needed)
 
-If user is on serverless:
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    📡 CONNECTING FROM SERVERLESS               ║
 ╠═══════════════════════════════════════════════════════════════╣
 ║                                                                ║
 ║   Your cache uses a private IP. To connect from Cloud Run      ║
-║   or Cloud Functions, you'll need to enable VPC access:        ║
+║   or Cloud Functions, enable VPC access:                       ║
 ║                                                                ║
 ║   Cloud Run:                                                   ║
-║   → Deploy with --network=VPC_NETWORK --subnet=SUBNET          ║
+║   → Deploy with --network and --subnet flags                   ║
 ║                                                                ║
 ║   Cloud Functions:                                             ║
-║   → Deploy with --vpc-connector=YOUR_CONNECTOR                 ║
+║   → Deploy with --vpc-connector flag                           ║
 ║                                                                ║
 ║   From GKE or Compute Engine on the same VPC:                  ║
 ║   → No additional configuration needed ✓                       ║
@@ -439,17 +520,15 @@ If user is on serverless:
 
 ## Quick Reference Commands
 
-### Common Operations
-
 ```bash
-# List your Memorystore instances
+# List Memorystore instances
 gcloud redis instances list --region=REGION
 
-# Check instance status
+# Check instance status  
 gcloud redis instances describe INSTANCE_NAME --region=REGION
 
 # Scale up memory (Redis)
-gcloud redis instances update INSTANCE_NAME --region=REGION --size=5
+gcloud redis instances update INSTANCE_NAME --region=REGION --size=NEW_SIZE
 
 # Delete instance
 gcloud redis instances delete INSTANCE_NAME --region=REGION
