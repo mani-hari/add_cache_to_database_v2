@@ -48,10 +48,10 @@ Display this card and wait for user input:
 |                                                               |
 |   How would you like to set up your cache?                    |
 |                                                               |
-|   [1] 🗄️ ▪️ Connect to existing Cloud SQL instance            |
+|   [1] 🗄️ Connect to existing Cloud SQL instance               |
 |       I'll match the region and network automatically         |
 |                                                               |
-|   [2] ▪️    Create standalone cache                           |
+|   [2] Create standalone cache                                 |
 |       I'll use the default VPC network                        |
 |                                                               |
 +---------------------------------------------------------------+
