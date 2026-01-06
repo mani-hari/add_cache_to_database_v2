@@ -20,7 +20,6 @@ Activate this extension when users say things like:
 4. **Handle complexity silently** - Do networking setup without asking technical questions
 5. **No repeated prompts** - Display information once and wait for user input
 6. **Use ASCII cards** - Present all choices and information in formatted ASCII cards
-7. **No Emojis** - Keep the interface clean and professional with text only
 
 ---
 
@@ -38,7 +37,7 @@ Display this card and wait for user input:
 
 ```
 +---------------------------------------------------------------+
-|                  ADD CACHE TO YOUR DATABASE                   |
+|             🚀 ADD CACHE TO YOUR DATABASE                     |
 +---------------------------------------------------------------+
 |                                                               |
 |   How would you like to set up your cache?                    |
@@ -69,7 +68,7 @@ Then display results in an ASCII card:
 
 ```
 +---------------------------------------------------------------+
-|                  YOUR CLOUD SQL INSTANCES                     |
+|             📊 YOUR CLOUD SQL INSTANCES                       |
 +---------------------------------------------------------------+
 |                                                               |
 |   #   Name                 Database        Region    Status   |
@@ -107,7 +106,7 @@ Set these defaults:
 Display:
 ```
 +---------------------------------------------------------------+
-|                       SELECT REGION                           |
+|                  🌍 SELECT REGION                             |
 +---------------------------------------------------------------+
 |                                                               |
 |   Popular regions:                                            |
@@ -132,7 +131,7 @@ Display this card and wait for input:
 
 ```
 +---------------------------------------------------------------+
-|                    CHOOSE YOUR CACHE TYPE                     |
+|               ⚡ CHOOSE YOUR CACHE TYPE                       |
 +---------------------------------------------------------------+
 |                                                               |
 |   [1] REDIS                                                   |
@@ -158,7 +157,7 @@ Display this card:
 
 ```
 +---------------------------------------------------------------+
-|                  REDIS STARTER CONFIGURATION                  |
+|             🚀 REDIS STARTER CONFIGURATION                    |
 +---------------------------------------------------------------+
 |                                                               |
 |   Cache Type        |  Redis 7.2                              |
@@ -170,7 +169,7 @@ Display this card:
 |   Estimated Cost    |  ~$35/month                             |
 |                                                               |
 +---------------------------------------------------------------+
-|   WHY THIS CONFIGURATION?                                     |
+|   💡 WHY THIS CONFIGURATION?                                  |
 |                                                               |
 |   - 1 GB is enough for sessions and frequently-accessed data  |
 |   - High Availability keeps cache online during maintenance   |
@@ -192,7 +191,7 @@ Display this card:
 
 ```
 +---------------------------------------------------------------+
-|                 VALKEY STARTER CONFIGURATION                  |
+|             🚀 VALKEY STARTER CONFIGURATION                   |
 +---------------------------------------------------------------+
 |                                                               |
 |   Cache Type        |  Valkey 8.0                             |
@@ -203,7 +202,7 @@ Display this card:
 |   Network           |  [VPC_NETWORK]                          |
 |                                                               |
 +---------------------------------------------------------------+
-|   WHY THIS CONFIGURATION?                                     |
+|   💡 WHY THIS CONFIGURATION?                                  |
 |                                                               |
 |   - Smallest node for cost-effective starting point           |
 |   - One replica provides automatic failover                   |
@@ -227,7 +226,7 @@ Display this card:
 
 ```
 +---------------------------------------------------------------+
-|                      SELECT MEMORY SIZE                       |
+|                  📏 SELECT MEMORY SIZE                        |
 +---------------------------------------------------------------+
 |                                                               |
 |   [1]  1 GB  - Sessions, hot data           (~$35/mo)         |
@@ -244,7 +243,7 @@ Display this card:
 
 ```
 +---------------------------------------------------------------+
-|                       SELECT NODE TYPE                        |
+|                   📏 SELECT NODE TYPE                         |
 +---------------------------------------------------------------+
 |                                                               |
 |   [1] shared-core-nano   ~1.5 GB   (good starting point)      |
@@ -297,7 +296,7 @@ Then display: `Network ready`
 Display:
 ```
 +---------------------------------------------------------------+
-|                        READY TO CREATE                        |
+|                    ⚡ READY TO CREATE                          |
 +---------------------------------------------------------------+
 |                                                               |
 |   Name     |  sql-cache-[RANDOM_6_CHARS]                      |
@@ -306,7 +305,7 @@ Display:
 |   Region   |  [REGION]                                        |
 |   Network  |  [VPC_NETWORK]                                   |
 |                                                               |
-|   Note: This will incur charges on your billing account.      |
+|   ⚠️ Note: This will incur charges on your billing account.   |
 |                                                               |
 |   Proceed? (y/n)                                              |
 |                                                               |
@@ -396,7 +395,7 @@ gcloud memorystore instances describe INSTANCE_NAME --region=REGION --format="js
 
 ```
 +---------------------------------------------------------------+
-|                        CACHE IS READY                         |
+|                    ✅ CACHE IS READY                          |
 +---------------------------------------------------------------+
 |                                                               |
 |   Instance   |  sql-cache-abc123                              |
@@ -405,7 +404,7 @@ gcloud memorystore instances describe INSTANCE_NAME --region=REGION --format="js
 |   Port       |  6379                                          |
 |                                                               |
 +---------------------------------------------------------------+
-|   SCALING UP LATER                                            |
+|   📈 SCALING UP LATER                                         |
 |                                                               |
 |   gcloud redis instances update sql-cache-abc123 \            |
 |     --region=REGION --size=NEW_SIZE                           |
@@ -447,7 +446,7 @@ async function getRedisClient() {
 
 ```
 +---------------------------------------------------------------+
-|                  CONNECTING FROM SERVERLESS                   |
+|               📡 CONNECTING FROM SERVERLESS                   |
 +---------------------------------------------------------------+
 |                                                               |
 |   Your cache uses a private IP. To connect from Cloud Run     |
