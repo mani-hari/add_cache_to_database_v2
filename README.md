@@ -15,18 +15,8 @@ This extension guides you through adding a cache layer to your existing Cloud SQ
 
 ## Installation
 
-### Install from GitHub
-
 ```bash
 gemini extensions install https://github.com/mani-hari/add_cache_to_database_v2
-```
-
-### Install from Local Directory
-
-If you've cloned this repo locally:
-
-```bash
-gemini extensions install /path/to/add_cache_to_database_v2
 ```
 
 ### Verify Installation
@@ -37,44 +27,28 @@ gemini extensions list
 
 You should see `add-cache` in the list of installed extensions.
 
-## Uninstallation
-
-To remove the extension:
-
-```bash
-gemini extensions uninstall add-cache
-```
-
 ## Usage
 
-Invoke the extension using:
-
+Invoke the extension:
 ```bash
 gemini --extensions add-cache
 ```
 
-### Example Prompts
+Then use one of these prompts:
 
-Once invoked, you can use prompts like these to trigger the extension:
+| Prompt Example | What It Does |
+|----------------|--------------|
+| `Add cache to my database` | Start the guided setup |
+| `Add Redis to Cloud SQL` | Setup Redis specifically |
+| `Add Valkey cache` | Setup Valkey specifically |
+| `Set up caching for my database` | Start the guided setup |
+| `Create a Memorystore instance` | Start the guided setup |
 
+## Uninstallation
+
+```bash
+gemini extensions uninstall add-cache
 ```
-# Start the cache setup workflow
-"Help me add a cache to my Cloud SQL database"
-
-# Or be more specific
-"Add a Redis cache to my Cloud SQL instance"
-
-# Or for Valkey
-"Set up a Valkey cache for my database"
-```
-
-### What Happens
-
-The extension will:
-- Ask you to select a Cloud SQL instance
-- Let you choose Redis or Valkey
-- Show you a recommended "starter" configuration
-- Create everything with secure defaults
 
 ## Cache Options
 
@@ -100,13 +74,12 @@ The extension will:
 ## File Structure
 
 ```
+├── GEMINI.md                # Extension instructions (for Gemini CLI)
 ├── gemini-extension.json    # Extension manifest
-├── README.md                # This file
-└── instructions/
-    └── add-cache.md         # Guided workflow instructions
+└── README.md                # This file
 ```
 
-## Customization
+## Starter Configuration
 
 The extension starts you with a sensible "starter" configuration:
 - **1 GB memory** - enough for session caching and frequently-accessed data
