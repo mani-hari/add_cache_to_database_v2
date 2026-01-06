@@ -13,6 +13,38 @@ This extension guides you through adding a cache layer to your existing Cloud SQ
 5. **Secures** credentials in Secret Manager
 6. **Provides** ready-to-use connection code for your application
 
+## Installation
+
+### Install from GitHub
+
+```bash
+gemini extension install https://github.com/mani-hari/add_cache_to_database_v2
+```
+
+### Install from Local Directory
+
+If you've cloned this repo locally:
+
+```bash
+gemini extension install /path/to/add_cache_to_database_v2
+```
+
+### Verify Installation
+
+```bash
+gemini extension list
+```
+
+You should see `add-cache` in the list of installed extensions.
+
+## Uninstallation
+
+To remove the extension:
+
+```bash
+gemini extension uninstall add-cache
+```
+
 ## Usage
 
 ```bash
