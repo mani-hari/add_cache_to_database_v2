@@ -293,35 +293,24 @@ Then display: `Network ready`
 
 ### Step 6.1: Choose Instance Name
 
-Generate a random suffix (e.g., `abc123`).
-Proposal: `sql-cache-[SUFFIX]`
+Generate a random suffix (e.g., `abc123`) and create a proposal: `sql-cache-abc123`
 
-Display this choice card:
-
+Display:
 ```
-+---------------------------------------------------------------+
-|                    🏷️  NAME YOUR CACHE                         |
-+---------------------------------------------------------------+
-|                                                               |
-|   I've suggested a unique name for your instance.             |
-|                                                               |
-|   Proposed Name:  sql-cache-[SUFFIX]                          |
-|                                                               |
-|   [1] Use this name                                           |
-|   [2] Choose a different name                                 |
-|                                                               |
-+---------------------------------------------------------------+
+I've generated a unique name for your instance: sql-cache-[SUFFIX]
+
+Press [ENTER] to accept this name, or type a different name:
 ```
 
-**Wait for user to enter 1 or 2.**
-
-**If user chooses 1:**
-Set `INSTANCE_NAME` = `sql-cache-[SUFFIX]`
-
-**If user chooses 2:**
-Ask: "Enter your desired instance name (lowercase letters, numbers, hyphens only):"
 **Wait for user input.**
+
+**If user input is empty (pressed Enter):**
+Set `INSTANCE_NAME` = `sql-cache-[SUFFIX]`
+Display: `Using name: sql-cache-[SUFFIX]`
+
+**If user types a name:**
 Set `INSTANCE_NAME` = `[USER_INPUT]`
+Display: `Using name: [USER_INPUT]`
 
 ### Step 6.2: Final Confirmation
 
