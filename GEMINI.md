@@ -289,17 +289,50 @@ Then display: `Network ready`
 
 ---
 
-## PHASE 6: Create the Cache
+## PHASE 6: Name & Create
 
-### Step 6.1: Final Confirmation
+### Step 6.1: Choose Instance Name
 
-Display:
+Generate a random suffix (e.g., `abc123`).
+Proposal: `sql-cache-[SUFFIX]`
+
+Display this choice card:
+
+```
++---------------------------------------------------------------+
+|                    🏷️  NAME YOUR CACHE                         |
++---------------------------------------------------------------+
+|                                                               |
+|   I've suggested a unique name for your instance.             |
+|                                                               |
+|   Proposed Name:  sql-cache-[SUFFIX]                          |
+|                                                               |
+|   [1] Use this name                                           |
+|   [2] Choose a different name                                 |
+|                                                               |
++---------------------------------------------------------------+
+```
+
+**Wait for user to enter 1 or 2.**
+
+**If user chooses 1:**
+Set `INSTANCE_NAME` = `sql-cache-[SUFFIX]`
+
+**If user chooses 2:**
+Ask: "Enter your desired instance name (lowercase letters, numbers, hyphens only):"
+**Wait for user input.**
+Set `INSTANCE_NAME` = `[USER_INPUT]`
+
+### Step 6.2: Final Confirmation
+
+Display the summary with the **chosen** name:
+
 ```
 +---------------------------------------------------------------+
 |                    ⚡ READY TO CREATE                          |
 +---------------------------------------------------------------+
 |                                                               |
-|   Name     |  sql-cache-[RANDOM_6_CHARS]                      |
+|   Name     |  [INSTANCE_NAME]                                 |
 |   Type     |  [Redis 7.2 / Valkey 8.0]                        |
 |   Memory   |  [SIZE]                                          |
 |   Region   |  [REGION]                                        |
