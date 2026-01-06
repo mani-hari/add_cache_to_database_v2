@@ -18,7 +18,7 @@ This extension guides you through adding a cache layer to your existing Cloud SQ
 ### Install from GitHub
 
 ```bash
-gemini extension install https://github.com/mani-hari/add_cache_to_database_v2
+gemini extensions install https://github.com/mani-hari/add_cache_to_database_v2
 ```
 
 ### Install from Local Directory
@@ -26,13 +26,13 @@ gemini extension install https://github.com/mani-hari/add_cache_to_database_v2
 If you've cloned this repo locally:
 
 ```bash
-gemini extension install /path/to/add_cache_to_database_v2
+gemini extensions install /path/to/add_cache_to_database_v2
 ```
 
 ### Verify Installation
 
 ```bash
-gemini extension list
+gemini extensions list
 ```
 
 You should see `add-cache` in the list of installed extensions.
@@ -42,16 +42,35 @@ You should see `add-cache` in the list of installed extensions.
 To remove the extension:
 
 ```bash
-gemini extension uninstall add-cache
+gemini extensions uninstall add-cache
 ```
 
 ## Usage
 
+Invoke the extension using:
+
 ```bash
-gemini /add-cache
+gemini --extensions add-cache
 ```
 
-Then follow the prompts. The extension will:
+### Example Prompts
+
+Once invoked, you can use prompts like these to trigger the extension:
+
+```
+# Start the cache setup workflow
+"Help me add a cache to my Cloud SQL database"
+
+# Or be more specific
+"Add a Redis cache to my Cloud SQL instance"
+
+# Or for Valkey
+"Set up a Valkey cache for my database"
+```
+
+### What Happens
+
+The extension will:
 - Ask you to select a Cloud SQL instance
 - Let you choose Redis or Valkey
 - Show you a recommended "starter" configuration
